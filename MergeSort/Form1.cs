@@ -19,6 +19,8 @@ namespace MergeSort
 {
     public partial class Form1 : Form
     {
+        SKPaint progressPaint = new SKPaint() { Color = SKColors.Black };
+        SKPaint progressBgPaint = new SKPaint() { Color = SKColors.White };
         SKMatrix matrix = SKMatrix.CreateIdentity();
         SKPoint drawOffset = new SKPoint();
         float scale = 1f;
@@ -28,7 +30,7 @@ namespace MergeSort
         {
             InitializeComponent();
             tick = new Timer();
-            tick.Interval = 1;
+            tick.Interval = 15;
             tick.Tick += Update;
             int[] items = new int[50];
             Random rnd = new Random(0);
@@ -60,7 +62,6 @@ namespace MergeSort
             }
             if (scale > 10f) scale = 10f;
             if (scale < 0.1f) scale = 0.1f;
-            //drawOffset = new SKPoint(drawOffset.X + (e.Location.X * (oldScale - scale)), drawOffset.Y + (e.Location.Y * (oldScale - scale)));
             drawOffset = new SKPoint(e.Location.X + ((drawOffset.X - e.Location.X) * scale / oldScale), e.Location.Y + ((drawOffset.Y - e.Location.Y) * scale / oldScale));
             matrix = SKMatrix.CreateScaleTranslation(scale, scale, drawOffset.X, drawOffset.Y);
             skiaView.Invalidate();
@@ -69,7 +70,8 @@ namespace MergeSort
         private void Update(object sender, EventArgs e)
         {
             drawer?.Tick();
-            if (autoStep != 0) drawer.AnimateTo(drawer.Current + autoStep);
+            if (shouldReset) shouldReset = !drawer.AnimateTo(0, true);
+            if (autoStep != 0) AnimateToForAutoStep(drawer.Current + autoStep);
         }
 
         const float squareHalfWidth = 10;
@@ -82,7 +84,14 @@ namespace MergeSort
             // make sure the canvas is blank
             canvas.Clear(SKColors.White);
 
+            // Draw in movable area here
             drawer.Paint(canvas);
+
+
+            canvas.SetMatrix(SKMatrix.Identity);
+            // Draw fixed to screen here
+            canvas.DrawRect(0, 0, canvas.LocalClipBounds.Width, 3, progressBgPaint);
+            canvas.DrawRect(0, 0, canvas.LocalClipBounds.Width * drawer.FullProgress, 3, progressPaint);
         }
 
         Point mouseLastPos;
@@ -105,6 +114,14 @@ namespace MergeSort
             mouseLastPos = e.Location;
         }
 
+        private void AnimateToForAutoStep(int idx)
+        {
+            if (drawer.Animating) return;
+            if (!drawer.AnimateTo(idx)) {
+                autoStep = 0;
+            }
+        }
+
         private void NextStep()
         {
             drawer.AnimateTo(drawer.Current + 1);
@@ -116,6 +133,7 @@ namespace MergeSort
         }
 
         int autoStep = 0;
+        bool shouldReset = false;
 
         private void skiaView_KeyPress(object sender, KeyPressEventArgs e)
         {
@@ -141,7 +159,8 @@ namespace MergeSort
             }
             if (e.KeyChar == 'r')
             {
-                drawer.AnimateTo(0);
+                autoStep = 0;
+                shouldReset = true;
             }
             if (e.KeyChar == 'b')
             {

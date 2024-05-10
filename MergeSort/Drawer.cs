@@ -40,9 +40,14 @@ namespace MergeSort
             canvas.DrawText(number.ToString(), center + new SKPoint(0, 6), black);
         }
 
+        private float InterpolateFloat(float a, float b, float x)
+        {
+            return (a * (1f - x)) + (b * x);
+        }
+
         private void DrawInterpolatedNumber(int number, SKPoint center1, SKPoint center2, float progress, SKCanvas canvas)
         {
-            DrawNumber(number, new SKPoint((center1.X * (1f-progress)) + (center2.X * progress), (center1.Y * (1f-progress)) + (center2.Y * progress)), canvas);
+            DrawNumber(number, new SKPoint(InterpolateFloat(center1.X, center2.X, progress), InterpolateFloat(center1.Y, center2.Y, progress)), canvas);
         }
 
         private SKPoint GetPointFromMergePoint(MergeSortStepPreRenderer.MergeSortValuePoint pnt)
@@ -52,7 +57,7 @@ namespace MergeSort
 
         public void Paint(SKCanvas canvas)
         {
-            if (animating)
+            if (Animating)
             {
                 for (int i = 0;i < step.points[idx].Length;i++)
                 {
@@ -69,31 +74,37 @@ namespace MergeSort
         }
 
         float animationProgress = 0f;
-        bool animating = false;
+        public bool Animating { get; private set; } = false;
         int animatingTo = 0;
 
-        public bool AnimateTo(int target)
+        public bool AnimateTo(int target, bool restartAnimation = false)
         {
             if (target < 0 || target >= step.points.Count) return false;
-            if (animating) return false;
+            if (Animating) return false;
 
-            animating = true;
-            animationProgress = 0f;
+            Animating = true;
+            if (restartAnimation) animationProgress = 0f;
             animatingTo = target;
             RequestUpdate();
             return true;
         }
 
         public int Current => idx;
+        private float GetProgressForIdx(int idx)
+        {
+            return idx / (step.points.Count - 1f);
+        }
+        public float FullProgress => Animating ? InterpolateFloat(GetProgressForIdx(Current), GetProgressForIdx(animatingTo), animationProgress) : GetProgressForIdx(Current);
         public void Tick()
         {
-            if (animating)
+            if (Animating)
             {
-                animationProgress += 0.2f;
+                animationProgress += 0.3f;
                 if (animationProgress >= 1f)
                 {
+                    animationProgress -= 1f;
                     idx = animatingTo;
-                    animating = false;
+                    Animating = false;
                 }
                 RequestUpdate();
             }
