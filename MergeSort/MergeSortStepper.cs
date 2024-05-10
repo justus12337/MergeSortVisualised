@@ -74,7 +74,7 @@ namespace MergeSort
                 joining = false;
                 DoStep();
             }
-            return true;
+            return currentStep < sorter.steps.Count;
         }
     }
 }
