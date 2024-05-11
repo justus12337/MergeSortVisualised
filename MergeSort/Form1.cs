@@ -26,6 +26,9 @@ namespace MergeSort
         float scale = 1f;
         Timer tick;
         Drawer drawer;
+        Shaker shaker;
+        int enableExplosions = 0;
+        const string explode = "boom";
         public Form1()
         {
             InitializeComponent();
@@ -46,6 +49,7 @@ namespace MergeSort
                 items[sI] = s;
             }
             drawer = new Drawer(items, squareHalfWidth, splitWidth, skiaView.Invalidate);
+            shaker = new Shaker(this);
             skiaView.MouseWheel += SkiaView_MouseWheel;
             tick.Start();
         }
@@ -70,6 +74,7 @@ namespace MergeSort
         private void Update(object sender, EventArgs e)
         {
             drawer?.Tick();
+            shaker?.Tick();
             if (shouldReset) shouldReset = !drawer.AnimateTo(0, true);
             if (autoStep != 0) AnimateToForAutoStep(drawer.Current + autoStep);
         }
@@ -161,6 +166,7 @@ namespace MergeSort
             {
                 autoStep = 0;
                 shouldReset = true;
+                if (enableExplosions == explode.Length) shaker.Init();
             }
             if (e.KeyChar == 'b')
             {
@@ -168,6 +174,13 @@ namespace MergeSort
                 scale = 1f;
                 drawOffset = SKPoint.Empty;
                 skiaView.Invalidate();
+            }
+
+            // Explosions
+            if (enableExplosions == explode.Length) return;
+            if (e.KeyChar == explode[enableExplosions])
+            {
+                enableExplosions++;
             }
         }
     }
