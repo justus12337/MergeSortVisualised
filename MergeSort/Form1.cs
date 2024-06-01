@@ -29,26 +29,50 @@ namespace MergeSort
         Shaker shaker;
         int enableExplosions = 0;
         const string explode = "boom";
+
+        int mode = -1;
         public Form1()
         {
             InitializeComponent();
             tick = new Timer();
-            tick.Interval = 15;
+            NextMode();
             tick.Tick += Update;
-            int[] items = new int[50];
-            Random rnd = new Random(0);
-            for (int i = 0;i<items.Length;i++)
+        }
+
+        private void NextMode()
+        {
+            mode = (mode + 1) % 3;
+            switch (mode)
             {
-                items[i] = i%10;
+                case 0:
+                    Init(50, 10, 10, 10, DrawNumberFunctions.DrawNumber);
+                    break;
+                case 1:
+                    Init(100, 100, 10, 10, DrawNumberFunctions.DrawNumber);
+                    break;
+                case 2:
+                    Init(100, 100, 1, 0, DrawNumberFunctions.DrawGrayscaleLine, true, true);
+                    break;
             }
-            for (int i = 0;i<items.Length;i++)
+        }
+
+        private void Init(int numberCount, int differentNumbers, float squareHalfWidth, float splitWidth, DrawNumberFunctions.NumberDrawingFunction drawingFunction, bool ignoreSplits = false, bool skipAnimations = false)
+        {
+            tick.Interval = 15;
+            int[] items = new int[numberCount];
+            Random rnd = new Random(0);
+            for (int i = 0; i < items.Length; i++)
+            {
+                items[i] = i % differentNumbers;
+            }
+            for (int i = 0; i < items.Length; i++)
             {
                 int s = items[i];
                 int sI = rnd.Next(items.Length);
                 items[i] = items[sI];
                 items[sI] = s;
             }
-            drawer = new Drawer(items, squareHalfWidth, splitWidth, skiaView.Invalidate);
+            drawer = new Drawer(items, squareHalfWidth, splitWidth, skiaView.Invalidate, drawingFunction, ignoreSplits, skipAnimations);
             shaker = new Shaker(this);
             skiaView.MouseWheel += SkiaView_MouseWheel;
             tick.Start();
@@ -79,9 +103,6 @@ namespace MergeSort
             if (autoStep != 0) AnimateToForAutoStep(drawer.Current + autoStep);
         }
 
-        const float squareHalfWidth = 10;
-
-        const float splitWidth = 10;
         private void skiaView_PaintSurface(object sender, SkiaSharp.Views.Desktop.SKPaintGLSurfaceEventArgs e)
         {
             var canvas = e.Surface.Canvas;
@@ -173,6 +194,11 @@ namespace MergeSort
                 matrix = SKMatrix.CreateIdentity();
                 scale = 1f;
                 drawOffset = SKPoint.Empty;
+                skiaView.Invalidate();
+            }
+            if (e.KeyChar == 'n')
+            {
+                NextMode();
                 skiaView.Invalidate();
             }
 

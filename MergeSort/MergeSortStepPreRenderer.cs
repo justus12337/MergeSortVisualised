@@ -23,8 +23,10 @@ namespace MergeSort
         public List<MergeSortValuePoint[]> points;
         public float squareHalfWidth;
         public float splitWidth;
-        public MergeSortStepPreRenderer(MergeSorterWithSteps msws, float squareHalfWidth, float splitWidth)
+        bool skipJoin;
+        public MergeSortStepPreRenderer(MergeSorterWithSteps msws, float squareHalfWidth, float splitWidth, bool ignoreSplits = false)
         {
+            this.skipJoin = ignoreSplits;
             step = new MergeSortStepper(msws);
             points = new List<MergeSortValuePoint[]>();
             this.squareHalfWidth = squareHalfWidth;
@@ -71,7 +73,10 @@ namespace MergeSort
         public void CompleteRender()
         {
             if (step == null) return;
-            do { Render(); } while (step.DoStep());
+            do {
+                if (!skipJoin || !(step.LastStep is MergeSorterWithSteps.MergeSortSplitStep))
+                    Render();
+            } while (step.DoStep());
             step = null;
         }
     }

@@ -38,6 +38,7 @@ namespace MergeSort
         public int joinIndex2 = 0;
         public int joinSplit = 0;
         public int joinIndexCurrent => joinIndex1 + joinIndex2;
+        public MergeSorterWithSteps.MergeSortStep LastStep => currentStep > 0 && currentStep <= sorter.steps.Count + 1 ? sorter.steps[currentStep-1] : null;
 
         public bool DoStep()
         {
