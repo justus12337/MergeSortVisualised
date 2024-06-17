@@ -1,4 +1,4 @@
-﻿using MergeSortSteps;
+using MergeSortSteps;
 
 using OpenTK.Graphics.ES20;
 
@@ -103,6 +103,9 @@ namespace MergeSort
             if (autoStep != 0) AnimateToForAutoStep(drawer.Current + autoStep);
         }
 
+        bool showTitle = true;
+        static SKPaint titleFont = new SKPaint { Color = SKColors.Black, IsAntialias = true, Style = SKPaintStyle.Fill, TextAlign = SKTextAlign.Left, TextSize = 17 };
+
         private void skiaView_PaintSurface(object sender, SkiaSharp.Views.Desktop.SKPaintGLSurfaceEventArgs e)
         {
             var canvas = e.Surface.Canvas;
@@ -118,6 +121,8 @@ namespace MergeSort
             // Draw fixed to screen here
             canvas.DrawRect(0, 0, canvas.LocalClipBounds.Width, 3, progressBgPaint);
             canvas.DrawRect(0, 0, canvas.LocalClipBounds.Width * drawer.FullProgress, 3, progressPaint);
+            if (showTitle)
+                canvas.DrawText("Merge-Sort-Visualisierung", new SKPoint(10, 20), titleFont);
         }
 
         Point mouseLastPos;
@@ -199,6 +204,11 @@ namespace MergeSort
             if (e.KeyChar == 'n')
             {
                 NextMode();
+                skiaView.Invalidate();
+            }
+            if (e.KeyChar == 'o')
+            {
+                showTitle = !showTitle;
                 skiaView.Invalidate();
             }
 
