@@ -45,6 +45,7 @@
             this.skiaView.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.skiaView_KeyPress);
             this.skiaView.MouseDown += new System.Windows.Forms.MouseEventHandler(this.skiaView_MouseDown);
             this.skiaView.MouseMove += new System.Windows.Forms.MouseEventHandler(this.skiaView_MouseMove);
+            this.skiaView.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.skiaView_MouseWheel);
             // 
             // Form1
             // 

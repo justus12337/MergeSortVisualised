@@ -74,11 +74,10 @@ namespace MergeSort
             }
             drawer = new Drawer(items, squareHalfWidth, splitWidth, skiaView.Invalidate, drawingFunction, ignoreSplits, skipAnimations);
             shaker = new Shaker(this);
-            skiaView.MouseWheel += SkiaView_MouseWheel;
             tick.Start();
         }
 
-        private void SkiaView_MouseWheel(object sender, MouseEventArgs e)
+        private void skiaView_MouseWheel(object sender, MouseEventArgs e)
         {
             float oldScale = scale;
             if (e.Delta > 1)
